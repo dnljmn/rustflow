@@ -1,0 +1,21 @@
+[workspace]
+
+members = [
+    "rustflow-core",
+    "rustflow"
+]
+default-members = ["rustflow"]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2024"
+authors = ["Dan J"]
+description = "Rustflow: Low-Ressource agent that output logs to various outputs."
+documentation = ""
+
+[workspace.dependencies]
+log = "0.4"
+log4rs = "1.3"
+serde = "1.0"
+tokio = { version = "1.45", features = ["full"] }
+

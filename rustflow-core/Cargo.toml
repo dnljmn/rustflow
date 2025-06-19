@@ -1,0 +1,11 @@
+[package]
+name = "rustflow-core"
+version = { workspace = true }
+edition = { workspace = true }
+authors = { workspace = true }
+documentation = { workspace = true }
+description = "Rustflow Core runtime application"
+
+
+[dependencies]
+log = { workspace = true }

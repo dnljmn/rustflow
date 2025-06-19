@@ -1,0 +1,13 @@
+[package]
+name = "rustflow"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+log = { workspace = true }
+log4rs = { workspace = true }
+serde = { workspace = true }
+tokio =  { workspace = true }
+config = "0.15"
+
+rustflow-core = { path= "../rustflow-core"}
