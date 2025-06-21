@@ -1,4 +1,5 @@
-use log::info;
+use std::backtrace::Backtrace;
+use log::{info, error};
 use tokio::signal::unix::signal;
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::Sender;
@@ -7,6 +8,8 @@ use tokio::time::sleep;
 use tokio::signal::unix::SignalKind;
 
 pub mod utils;
+mod runtime;
+
 
 pub const APP_NAME: &'static  str = env!("CARGO_PKG_NAME");
 pub const APP_VERSION: &'static str = env!("CARGO_PKG_VERSION");
@@ -23,6 +26,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>>{
      // Initializing the configuration
      let config = utils::init_config(CONFIG_FILE);
     
+     println!("DDD {}", config);
      info!("Starting {} v{}", APP_NAME, APP_VERSION);
  
      let (tx,  rx) = mpsc::channel(1);
@@ -31,9 +35,13 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>>{
          signal_handler_unix(tx).await;
      });
 
-
-        // Loading the configuration
-    println!("Hello, world!");
+    // Setup and run the application runtime
+    if let Err(x) = runtime::Runtime::new(config).run(rx).await{
+        error!("{APP_NAME} has encountured a fatal error: {:?}", x);
+        // Force backtrace capture
+        println!("Custom backtrace: {}", Backtrace::force_capture());
+        return Err(x);
+    }
     Ok(())
 }
 

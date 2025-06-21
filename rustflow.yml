@@ -1,0 +1,14 @@
+name: "test"
+pipelines:
+  - name: "test"
+    input:
+      - name: "input1"
+        type: "tail"
+        path:
+          - "test1.txt"
+          - "test2.txt"
+      - name: "input2"
+        type: "file"
+        zulu:
+          - "file1.txt"
+          - "file2.txt"
