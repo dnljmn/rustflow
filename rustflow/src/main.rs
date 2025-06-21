@@ -1,14 +1,12 @@
 use std::backtrace::Backtrace;
 use log::{info, error};
-use tokio::signal::unix::signal;
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::Sender;
-use tokio::time::Duration;
-use tokio::time::sleep;
-use tokio::signal::unix::SignalKind;
 
 pub mod utils;
 mod runtime;
+
+
 
 
 pub const APP_NAME: &'static  str = env!("CARGO_PKG_NAME");
@@ -32,7 +30,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>>{
      let (tx,  rx) = mpsc::channel(1);
  
      tokio::spawn(async move {
-         signal_handler_unix(tx).await;
+        signal_handler(tx).await;
      });
 
     // Setup and run the application runtime
@@ -47,7 +45,13 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>>{
 
 
 // Wait for system signal and return through channel;
-async fn signal_handler_unix(tx: Sender<()>) {
+#[cfg(target_os = "linux")]
+async fn signal_handler(tx: Sender<()>) {
+    use tokio::signal::unix::SignalKind;
+    use tokio::signal::unix::signal;
+    use tokio::time::Duration;
+    use tokio::time::sleep;
+
     let mut sigterm = signal(SignalKind::terminate()).unwrap();
     let mut sigint = signal(SignalKind::interrupt()).unwrap();
 
@@ -66,4 +70,12 @@ async fn signal_handler_unix(tx: Sender<()>) {
             }
         }
     }
+}
+
+#[cfg(target_os = "windows")]
+async fn signal_handler(tx: Sender<()>) {
+    use tokio::signal::ctrl_c;
+    ctrl_c().await.expect("Failed too await for signal");
+    println!("Receive Ctrl-C Signal, exiting...");
+    let _ =  tx.send(()).await;
 }
